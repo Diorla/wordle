@@ -13,15 +13,33 @@ import { useGame } from "../context";
 import createArray from "../scripts/createArray";
 import spelling from "spelling";
 import dictionary from "spelling/dictionaries/en_US";
+import evaluateAlpha from "../scripts/evaluateAlpha";
 
 // @ts-ignore
 const dict = new spelling(dictionary);
+
+const alphabet = [];
+for (let i = 0; i < 26; i++) {
+  alphabet.push(String.fromCharCode(65 + i));
+}
+
+console.log(alphabet);
 
 const ConfirmedText = ({ isSameLocation, includesChar, text }) => {
   if (isSameLocation)
     return <Text style={[styles.inputBox, styles.sameIndex]}>{text}</Text>;
   if (includesChar)
     return <Text style={[styles.inputBox, styles.containChar]}>{text}</Text>;
+  return <Text style={styles.inputBox}>{text}</Text>;
+};
+
+const AlphaText = ({ isSameLocation, includesChar, text, isSelected }) => {
+  if (isSameLocation)
+    return <Text style={[styles.inputBox, styles.sameIndex]}>{text}</Text>;
+  if (includesChar)
+    return <Text style={[styles.inputBox, styles.containChar]}>{text}</Text>;
+  if (isSelected)
+    return <Text style={[styles.inputBox, styles.selected]}>{text}</Text>;
   return <Text style={styles.inputBox}>{text}</Text>;
 };
 
@@ -61,12 +79,19 @@ export default function Game() {
     ToastAndroid.show(msg, ToastAndroid.SHORT);
   };
 
-  console.log({ answer, status });
+  console.log({ answer, status, responseList });
   return (
     <View>
       <Text>Welcome to Wordle</Text>
       <TextInput
         value={value}
+        style={{
+          width: 0,
+          height: 0,
+          borderBottomColor: "red",
+          borderWidth: 1,
+          borderStyle: "solid",
+        }}
         onChangeText={(val) => {
           if (val.length <= 5) setValue(val);
         }}
@@ -84,25 +109,29 @@ export default function Game() {
         underlayColor="#DDDDDD"
         style={styles.tableWrapper}
         disabled={status === "completed"}
-        onPress={() => status !== "completed" && inputRef?.current?.focus()}
+        onPress={() => inputRef?.current?.focus()}
       >
         <View>
           {responseList.map((item, idx) => (
             <Row key={idx} value={item} />
           ))}
-          <View style={styles.inputView}>
-            {value.split("").map((item, idx) => (
-              <Text key={idx} style={styles.inputBox}>
-                {item}
-              </Text>
-            ))}
-            {tempArr.map((item, idx) => (
-              <Text key={idx} style={styles.inputBox}>
-                {item}
-              </Text>
-            ))}
-          </View>
-          {fullTable.map((item, idx) => (
+          {responseList.length < 6 && (
+            <View>
+              <View style={styles.inputView}>
+                {value.split("").map((item, idx) => (
+                  <Text key={idx} style={styles.inputBox}>
+                    {item}
+                  </Text>
+                ))}
+                {tempArr.map((item, idx) => (
+                  <Text key={idx} style={styles.inputBox}>
+                    {item}
+                  </Text>
+                ))}
+              </View>
+            </View>
+          )}
+          {fullTable.map((_item, idx) => (
             <View key={idx} style={styles.inputView}>
               {row.map((item, idx) => (
                 <Text key={idx} style={styles.inputBox}>
@@ -113,10 +142,17 @@ export default function Game() {
           ))}
         </View>
       </TouchableHighlight>
+      <View style={styles.alphabet}>
+        {alphabet.map((item, idx) => (
+          <AlphaText
+            key={idx}
+            text={item}
+            {...evaluateAlpha(answer, responseList, item)}
+          />
+        ))}
+      </View>
       <View>
-        {status === "completed" && (
-          <Button onPress={resetGame} title="restart" />
-        )}
+        <Button onPress={resetGame} title="restart" />
       </View>
     </View>
   );
@@ -145,5 +181,16 @@ const styles = StyleSheet.create({
   },
   containChar: {
     backgroundColor: "orange",
+  },
+  alphabet: {
+    flexWrap: "wrap",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  selected: {
+    backgroundColor: "silver",
   },
 });
