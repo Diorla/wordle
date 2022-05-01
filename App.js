@@ -1,20 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+// @ts-check
+import GameProvider from "./context";
+import Routes from "./components/Routes";
+import { StatusBar } from "expo-status-bar";
+import { View, StyleSheet } from "react-native";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GameProvider>
+      <View style={styles.wrapper}>
+        <StatusBar style="dark" />
+        <Routes />
+      </View>
+    </GameProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+  wrapper: {
+    marginTop: 26,
   },
 });
