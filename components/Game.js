@@ -109,6 +109,7 @@ export default function Game() {
         underlayColor="#DDDDDD"
         style={styles.tableWrapper}
         disabled={status === "completed"}
+        // @ts-ignore
         onPress={() => inputRef?.current?.focus()}
       >
         <View>
